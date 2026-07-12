@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create Account | Service Hub Directory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="auth-wrapper">
+<div class="container-box">
+  <div class="left">
+    <img src="{{ url_for('static', filename='logohub.png') }}" alt="Service Hub Directory logo">
+    <h1>Join Service Hub</h1>
+    <p class="tag">Create a free account to book trusted local professionals in minutes.</p>
+    <ul>
+      <li>✔ Verified Professionals</li>
+      <li>✔ Easy Service Booking</li>
+      <li>✔ Customer Rewards</li>
+      <li>✔ Safe &amp; Secure Platform</li>
+    </ul>
+    <h5>"Your One-Stop Destination for Every Local Service."</h5>
+  </div>
+
+  <div class="right">
+    <div class="card p-4">
+      <h2>Create Account</h2>
+      <p>Sign up to start booking services</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-{{ 'error' if category=='error' else 'success' }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('register') }}">
+        <input type="text" name="name" class="form-control mb-3" placeholder="Full Name" required>
+        <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
+        <input type="tel" name="phone" class="form-control mb-3" placeholder="Phone Number" pattern="[0-9]{10}" required>
+        <input type="password" name="password" class="form-control mb-3" placeholder="Password" minlength="6" required>
+        <input type="password" name="confirm_password" class="form-control mb-3" placeholder="Confirm Password" minlength="6" required>
+        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+      </form>
+
+      <p class="text-center mt-3" style="font-size:14px;color:var(--text-muted);">
+        Already have an account? <a href="{{ url_for('login_page') }}">Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>
