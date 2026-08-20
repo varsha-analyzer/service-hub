@@ -111,34 +111,47 @@
     <p>A snapshot of highly-rated providers active on the platform this month.</p>
   </div>
   <div class="provider-grid">
-    <div class="provider-card">
-      <div class="provider-photo">RK</div>
-      <div class="provider-info">
-        <span class="badge-verified">✔ Verified</span>
-        <h4>Ravi Kumar</h4>
-        <div class="role">Electrician · Madurai</div>
-        <div class="rating">★★★★★ <span>(128 reviews)</span></div>
+    {% if featured_providers %}
+      {% for p in featured_providers %}
+      <div class="provider-card">
+        <div class="provider-photo">{{ p.name[:2].upper() }}</div>
+        <div class="provider-info">
+          <span class="badge-verified">✔ Verified</span>
+          <h4>{{ p.name }}</h4>
+          <div class="role">{{ p.category }} · {{ p.city }}</div>
+          <div class="rating">
+            {{ '★' * (p.avg_rating|round|int) }}{{ '☆' * (5 - (p.avg_rating|round|int)) }}
+            <span>({{ p.review_count }} reviews)</span>
+          </div>
+          <a href="{{ url_for('submit_review', provider_id=p.id) }}" class="btn-review">⭐ Leave a Review</a>
+        </div>
       </div>
-    </div>
-    <div class="provider-card">
-      <div class="provider-photo">SP</div>
-      <div class="provider-info">
-        <span class="badge-verified">✔ Verified</span>
-        <h4>Sundari Priya</h4>
-        <div class="role">Beautician · Madurai</div>
-        <div class="rating">★★★★★ <span>(96 reviews)</span></div>
-      </div>
-    </div>
-    <div class="provider-card">
-      <div class="provider-photo">MV</div>
-      <div class="provider-info">
-        <span class="badge-verified">✔ Verified</span>
-        <h4>Manoj Vel</h4>
-        <div class="role">Computer Technician · Madurai</div>
-        <div class="rating">★★★★☆ <span>(74 reviews)</span></div>
-      </div>
-    </div>
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center; color:var(--text-muted); grid-column:1/-1;">
+        No providers yet — check back soon!
+      </p>
+    {% endif %}
   </div>
+
+  <style>
+      .btn-review{
+          display:inline-block;
+          margin-top:12px;
+          padding:8px 18px;
+          border-radius:8px;
+          background:#2f6fed;
+          color:#fff !important;
+          text-decoration:none;
+          font-size:13px;
+          font-weight:600;
+          transition:.2s;
+      }
+      .btn-review:hover{
+          background:#123d82;
+          color:#fff;
+      }
+  </style>
 </section>
 
 <!-- ========================= REWARDS ========================= -->
