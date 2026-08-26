@@ -17,7 +17,7 @@ def get_db_connection():
 CATEGORIES = {
     "electrician":  {"slug": "electrician",  "name": "Electricians",         "icon": "⚡", "desc": "Wiring, repairs & installations"},
     "plumber":      {"slug": "plumber",      "name": "Plumbers",             "icon": "🔧", "desc": "Leaks, fittings & pipelines"},
-    "carpenter":    {"slug": "carpenter",    "name": "Carpenters",           "icon": "🪚", "desc": "Furniture & woodwork"},
+    "carpenter":    {"slug": "carpenter",    "name": "Carpenters",           n": "🪚", "desc": "Furniture & woodwork"},
     "beautician":   {"slug": "beautician",   "name": "Beauticians",          "icon": "💇", "desc": "Salon & grooming at home"},
     "tutor":        {"slug": "tutor",        "name": "Tutors",               "icon": "📘", "desc": "Academic & skill coaching"},
     "photographer": {"slug": "photographer", "name": "Photographers",        "icon": "📷", "desc": "Events & portraits"},
