@@ -6,10 +6,10 @@ app.secret_key = "change-this-to-a-random-secret-key"   # required for session/f
 
 # ---------------- DATABASE CONNECTION ----------------
 def get_db_connection():
-    return mysql.connector.c
-        host="localho
-
-        passwo
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
         database="service_hub"
     )
 
@@ -17,21 +17,81 @@ def get_db_connection():
 CATEGORIES = {
     "electrician":  {"slug": "electrician",  "name": "Electricians",         "icon": "⚡", "desc": "Wiring, repairs & installations"},
     "plumber":      {"slug": "plumber",      "name": "Plumbers",             "icon": "🔧", "desc": "Leaks, fittings & pipelines"},
-    "carpenter":    {"slug": "carpenter",    "name": "Carpenters",           n": "🪚", "desc": "Furniture & woodwork"},
+    "carpenter":    {"slug": "carpenter",    "name": "Carpenters",           "icon": "🪚", "desc": "Furniture & woodwork"},
     "beautician":   {"slug": "beautician",   "name": "Beauticians",          "icon": "💇", "desc": "Salon & grooming at home"},
     "tutor":        {"slug": "tutor",        "name": "Tutors",               "icon": "📘", "desc": "Academic & skill coaching"},
     "photographer": {"slug": "photographer", "name": "Photographers",        "icon": "📷", "desc": "Events & portraits"},
     "technician":   {"slug": "technician",   "name": "Computer Technicians", "icon": "💻", "desc": "Repairs & setup"},
 }
+MOCK_PROVIDERS_BY_CATEGORY = {
+    "electrician": [
+        {"name": "Ravi Kumar", "initials": "RK", "location": "subhanagar", "stars": "★★★★★", "reviews": 128},
+        {"name": "Suresh Babu", "initials": "SB", "location": "Kadalaiyur", "stars": "★★★★☆", "reviews": 82},
+        {"name": "Arun Prakash", "initials": "AP", "location": "Indira Nagar", "stars": "★★★★★", "reviews": 61},
+    ],
+    "plumber": [
+        {"name": "Manoj Vel", "initials": "MV", "location": "Subhanagar", "stars": "★★★★☆", "reviews": 74},
+        {"name": "Dinesh Kumar", "initials": "DK", "location": "Aanandha Nagar", "stars": "★★★★★", "reviews": 110},
+        {"name": "Vijayan S", "initials": "VS", "location": "Lakshmipuram", "stars": "★★★★☆", "reviews": 45},
+    ],
+    "carpenter": [
+        {"name": "Muthu Raj", "initials": "MR", "location": "Loyal Mill Colony", "stars": "★★★★★", "reviews": 93},
+        {"name": "Selvam K", "initials": "SK", "location": "Jothi Nagar", "stars": "★★★★☆", "reviews": 58},
+        {"name": "Ganesan P", "initials": "GP", "location": "", "VOC Nagar": "★★★★★", "reviews": 71},
+    ],
+    "beautician": [
+        {"name": "Sundari Priya", "initials": "SP", "location": "Maravar Colony", "stars": "★★★★★", "reviews": 96},
+        {"name": "Kavitha Raj", "initials": "KR", "location": "Innam Maniyachi", "stars": "★★★★★", "reviews": 140},
+        {"name": "Meena Devi", "initials": "MD", "location": "Athaikondan", "stars": "★★★★☆", "reviews": 67},
+    ],
+    "tutor": [
+        {"name": "Karthik S", "initials": "KS", "location": "Gandhinagar", "stars": "★★★★★", "reviews": 55},
+        {"name": "Priya Dharshini", "initials": "PD", "location": "Srinivasa Nagar", "stars": "★★★★☆", "reviews": 38},
+        {"name": "Anand Babu", "initials": "AB", "location": "Trichy", "stars": "★★★★★", "reviews": 84},
+    ],
+    "photographer": [
+        {"name": "Vignesh R", "initials": "VR", "location": "Subha Nagar", "stars": "★★★★★", "reviews": 102},
+        {"name": "Nithya Sri", "initials": "NS", "location": "Appaneri", "stars": "★★★★☆", "reviews": 49},
+        {"name": "Kishore Kumar", "initials": "KK", "location": "Elluppaiyurani", "stars": "★★★★★", "reviews": 76},
+    ],
+    "technician": [
+        {"name": "Bala Murugan", "initials": "BM", "location": "Kamaraj Nagar", "stars": "★★★★☆", "reviews": 63},
+        {"name": "Ramesh Chandra", "initials": "RC", "location": "Venkateshwara Garden", "stars": "★★★★★", "reviews": 118},
+        {"name": "Senthil Kumar", "initials": "SK", "location": "Alagar Nagar", "stars": "★★★★☆", "reviews": 41},
+    ],
+}
+# ---------------- USER DASHBOARD ----------------
+@app.route('/dashboard')
+def user_dashboard():
+    if 'user_id' not in session:
+        flash("Please login to view your dashboard.", "error")
+        return redirect(url_for('login_page'))
 
-# Placeholder providers until the `service_providers` table is wired up (see schema.sql)
-MOCK_PROVIDERS = [
-    {"name": "Ravi Kumar", "initials": "RK", "location": "Madurai", "stars": "★★★★★", "reviews": 128},
-    {"name": "Sundari Priya", "initials": "SP", "location": "Madurai", "stars": "★★★★★", "reviews": 96},
-    {"name": "Manoj Vel", "initials": "MV", "location": "Trichy", "stars": "★★★★☆", "reviews": 74},
-]
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
+    cursor.execute("""
+        SELECT * FROM service_requests
+        WHERE user_id = %s
+        ORDER BY id DESC
+    """, (session['user_id'],))
+    requests = cursor.fetchall()
 
+    total = len(requests)
+    pending = len([r for r in requests if r['status'] == 'pending'])
+    accepted = len([r for r in requests if r['status'] == 'accepted'])
+    completed = len([r for r in requests if r['status'] == 'completed'])
+
+    conn.close()
+
+    return render_template(
+        'user_dashboard.html',
+        requests=requests,
+        total=total,
+        pending=pending,
+        accepted=accepted,
+        completed=completed
+    )
 # ---------------- ADMIN LOGIN ----------------
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
@@ -322,7 +382,6 @@ def home():
 def provider_login_page():
     return render_template('provider_login.html')
 
-
 # ---------------- PROVIDER LOGIN PROCESS ----------------
 @app.route('/provider/login', methods=['POST'])
 def provider_login():
@@ -332,25 +391,46 @@ def provider_login():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
-        "SELECT * FROM users WHERE email = %s AND password = %s AND role = 'provider'",
+        "SELECT * FROM service_providers WHERE email = %s AND password = %s",
         (email, password)
     )
-    user = cursor.fetchone()
+    provider = cursor.fetchone()
 
-    if not user:
+    if not provider:
         conn.close()
         flash("Invalid provider email or password.", "error")
         return redirect(url_for('provider_login_page'))
 
-    session['user_id'] = user['id']
-    session['user_name'] = user['name']
-    session['user_email'] = user['email']
-    session['user_phone'] = user['phone']
+    if provider['status'] != 'approved':
+        conn.close()
+        flash("Your account is pending admin approval.", "error")
+        return redirect(url_for('provider_login_page'))
+
+    session['user_id'] = provider['id']
+    session['user_name'] = provider['name']
+    session['user_email'] = provider['email']
+    session['user_phone'] = provider['phone']
     session['role'] = 'provider'
 
     conn.close()
     return redirect(url_for('provider_dashboard'))
 
+# ---------------- PROVIDER DASHBOARD ----------------
+@app.route('/provider/dashboard')
+def provider_dashboard():
+    if session.get('role') != 'provider':
+        flash("Please login as a service provider to continue.", "error")
+        return redirect(url_for('provider_login_page'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT * FROM service_providers WHERE id = %s
+    """, (session['user_id'],))
+    provider = cursor.fetchone()
+    conn.close()
+
+    return render_template('provider_dashboard.html', provider=provider)
 
 # ---------------- PROVIDER REGISTER PAGE ----------------
 @app.route('/provider/register', methods=['GET'])
@@ -411,32 +491,23 @@ def provider_register_post():
     flash("Registration successful! Waiting for admin approval.", "success")
     return redirect(url_for('provider_login_page'))
 
-# ---------------- PROVIDER DASHBOARD ----------------
-@app.route('/provider/dashboard')
-def provider_dashboard():
-    if session.get('role') != 'provider':
-        flash("Please login as a service provider to continue.", "error")
-        return redirect(url_for('provider_login_page'))
-
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT sp.*, c.name AS category_name, c.icon AS category_icon
-        FROM service_providers sp
-        LEFT JOIN categories c ON sp.category_id = c.id
-        WHERE sp.user_id = %s
-    """, (session['user_id'],))
-    provider = cursor.fetchone()
-    conn.close()
-
-    return render_template('provider_dashboard.html', provider=provider)
-
-
 # ---------------- PROVIDER LOGOUT ----------------
 @app.route('/provider/logout')
 def provider_logout():
     session.clear()
     return redirect(url_for('provider_login_page'))
+@app.route('/provider/request/<int:id>/update/<status>')
+def update_request_status(id, status):
+    if session.get('role') != 'provider':
+        return redirect(url_for('provider_login_page'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE service_requests SET status=%s WHERE id=%s", (status, id))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('provider_dashboard'))
 
 
 # ---------------- SERVICE CATEGORY MODULE ----------------
@@ -450,8 +521,32 @@ def category_page(name):
     category = CATEGORIES.get(name)
     if not category:
         return redirect(url_for('categories'))
-    return render_template('category_page.html', category=category, providers=MOCK_PROVIDERS)
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT * FROM service_providers
+        WHERE category = %s AND status = 'approved'
+    """, (name,))
+    db_providers = cursor.fetchall()
+    conn.close()
+
+    # Turn real DB rows into the same shape the template expects
+    real_providers = []
+    for p in db_providers:
+        initials = "".join([w[0].upper() for w in p['name'].split()][:2])
+        real_providers.append({
+            "name": p['name'],
+            "initials": initials,
+            "location": p.get('area') or p.get('city') or "",
+            "stars": "★★★★★",
+            "reviews": 0
+        })
+
+    mock_providers = MOCK_PROVIDERS_BY_CATEGORY.get(name, [])
+    providers = real_providers + mock_providers
+
+    return render_template('category_page.html', category=category, providers=providers)
 
 # ---------------- SERVICE REQUEST MODULE ----------------
 @app.route('/request/<name>', methods=['GET', 'POST'])
