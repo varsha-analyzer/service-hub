@@ -1,0 +1,21 @@
+<footer class="hub-footer">
+  <div class="footer-grid">
+    <div>
+      <h5>Service Hub Directory</h5>
+      <p>Connecting communities with trusted, verified local service providers since day one. Safe, simple, and rewarding.</p>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <ul><li><a href="{{ url_for('home') }}">About Us</a></li><li><a href="{{ url_for('home') }}#how-it-works">How it Works</a></li><li><a href="#">Careers</a></li></ul>
+    </div>
+    <div>
+      <h5>For Providers</h5>
+      <ul><li><a href="{{ url_for('provider_register') }}">Register as Provider</a></li><li><a href="{{ url_for('provider_dashboard') if session.get('role')=='provider' else url_for('provider_login_page') }}">Provider Dashboard</a></li><li><a href="#">Support</a></li></ul>
+    </div>
+    <div>
+      <h5>Support</h5>
+      <ul><li><a href="#">Help Center</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Service Hub Directory. All rights reserved.</div>
+</footer>
