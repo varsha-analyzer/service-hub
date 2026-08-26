@@ -9,7 +9,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host="localho
 
-        password="",
+        passwo
         database="service_hub"
     )
 
