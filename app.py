@@ -8,7 +8,7 @@ app.secret_key = "change-this-to-a-random-secret-key"   # required for session/f
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",
+
         password="",
         database="service_hub"
     )
