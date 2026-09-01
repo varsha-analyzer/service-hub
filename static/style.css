@@ -31,7 +31,7 @@ body{
   color: var(--text-dark);
 }
 
-a{ text-decoration:none; color:var(--primary); }
+a{ text-decoration:none; color:var(--primary); ]
 
 .auth-wrapper{
   min-height:100vh;
